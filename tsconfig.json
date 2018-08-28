@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true, /*this is needed for the express modules to be loaded*/
+    "target": "es6",
+    "outDir": "./dist",
+    "sourceMap": true,
+    "strict": false,
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/*",
+        "src/types/*"
+      ]
+    },
+    "noImplicitAny": true,
+    "allowJs": true,
+    "jsx": "react"
+  },
+  "include": [
+    "./src/**/*"
+  ]
+}
