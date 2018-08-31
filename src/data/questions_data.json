@@ -1,0 +1,72 @@
+[
+  {
+    "question": "Do you love open source?",
+    "options": [
+      {
+        "index": "A",
+        "text": "Yes, of course!",
+        "frame": "frame1"
+      },
+      {
+        "index": "B",
+        "text": "Not sure yet, I’m still learning.",
+        "frame": "frame2"
+      },
+      {
+        "index": "C",
+        "text": "No, I don’t like sharing.",
+        "frame": "frame3"
+      }
+    ]
+  },
+  {
+    "question": "What’s your favorite type of hat?",
+    "options": [
+      {
+        "index": "A",
+        "text": "Fedora",
+        "frame": "frame4"
+      },
+      {
+        "index": "B",
+        "text": "Baseball cap",
+        "frame": "frame5"
+      },
+      {
+        "index": "C",
+        "text": "Beret",
+        "frame": "frame6"
+      },
+      {
+        "index": "D",
+        "text": "Cowboy hat",
+        "frame": "frame7"
+      }
+    ]
+  },
+  {
+    "question": "Who is your favorite superhero?",
+    "options": [
+      {
+        "index": "A",
+        "text": "ENIAC women, 6 women who programmed the world’s first electronic computer",
+        "frame": "frame8"
+      },
+      {
+        "index": "B",
+        "text": "Grace Hopper, the Navy admiral known as the “mother of computing”",
+        "frame": "frame9"
+      },
+      {
+        "index": "C",
+        "text": "Annie Easley, developed technology leading to battery used in hybrid cars",
+        "frame": "frame10"
+      },
+      {
+        "index": "D",
+        "text": "Katherine Johnson, NASA “human computer” instrumental in putting the first American in space",
+        "frame": "frame11"
+      }
+    ]
+  }
+]

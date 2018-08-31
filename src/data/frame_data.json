@@ -1,0 +1,156 @@
+[
+  {
+    "id": "frame1",
+    "filename": "frame1-A.png",
+    "settings": {
+      "left": 60,
+      "top": -25,
+      "angle": 0,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 512,
+    "scaleHeight": 0,
+    "isBackground": false
+  },
+  {
+    "id": "frame2",
+    "filename": "frame1-B.png",
+    "settings": {
+      "left": 60,
+      "top": -25,
+      "angle": 0,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 512,
+    "scaleHeight": 0,
+    "isBackground": false
+  },
+  {
+    "id": "frame3",
+    "filename": "frame1-C.png",
+    "settings": {
+      "left": 60,
+      "top": -25,
+      "angle": 0,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 512,
+    "scaleHeight": 0,
+    "isBackground": false
+  },
+  {
+    "id": "frame4",
+    "filename": "frame2-A.png",
+    "settings": {
+      "left": 20,
+      "top": 300,
+      "angle": 0,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 200,
+    "scaleHeight": 200,
+    "isBackground": false
+  },
+  {
+    "id": "frame5",
+    "filename": "frame2-B.png",
+    "settings": {
+      "left": 20,
+      "top": 300,
+      "angle": 0,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 200,
+    "scaleHeight": 200,
+    "isBackground": false
+  },
+  {
+    "id": "frame6",
+    "filename": "frame2-C.png",
+    "settings": {
+      "left": 20,
+      "top": 300,
+      "angle": 0,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 200,
+    "scaleHeight": 200,
+    "isBackground": false
+  },
+  {
+    "id": "frame7",
+    "filename": "frame2-D.png",
+    "settings": {
+      "left": 20,
+      "top": 300,
+      "angle": 0,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 200,
+    "scaleHeight": 200,
+    "isBackground": false
+  },
+  {
+    "id": "frame8",
+    "filename": "frame3-A.png",
+    "settings": {
+      "left": 280,
+      "top": -25,
+      "angle": 30,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 200,
+    "scaleHeight": 200,
+    "isBackground": false
+  },
+  {
+    "id": "frame9",
+    "filename": "frame3-B.png",
+    "settings": {
+      "left": 280,
+      "top": -25,
+      "angle": 30,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 200,
+    "scaleHeight": 200,
+    "isBackground": false
+  },
+  {
+    "id": "frame10",
+    "filename": "frame3-A.png",
+    "settings": {
+      "left": 280,
+      "top": -25,
+      "angle": 30,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 200,
+    "scaleHeight": 200,
+    "isBackground": false
+  },
+  {
+    "id": "frame11",
+    "filename": "frame3-B.png",
+    "settings": {
+      "left": 280,
+      "top": -25,
+      "angle": 30,
+      "selectable": false,
+      "hoverCursor": "default"
+    },
+    "scaleWidth": 200,
+    "scaleHeight": 200,
+    "isBackground": false
+  }
+]

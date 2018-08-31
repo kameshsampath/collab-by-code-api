@@ -1,33 +1,20 @@
-import { Request, Response } from 'express';
-
-import { app } from '../app';
-import { Questions } from '../model/models';
-
-//Save New Question
-app.post('/api/questions', (req: Request, res: Response) => {
-  const data = new Questions(req.body);
-  data.save().then((doc) => {
-    res
-      .contentType('json')
-      .status(201)
-      .send(doc);
-  }, (err) => {
-    res
-      .status(400)
-      .send(err);
-  });
-});
+import { Request, Response } from "express";
+import { app, db } from "../app";
+import { loadCollection } from "../utils/collectionUtils";
 
 //Get all questions
-app.get('/api/questions', (req: Request, res: Response) => {
-  Questions.find().then((docs) => {
-    res
-      .contentType('json')
-      .status(200)
-      .send(docs);
-  }, (err) => {
-    res
-      .status(400)
-      .send(err);
-  });
+app.get("/api/questions", async (req: Request, res: Response, next: any) => {
+  //TODO move this to higher order function
+  try {
+    const qCollection = await loadCollection("questions", db);
+    const docs = qCollection.find();
+    if (docs) {
+      return res
+        .contentType("json")
+        .status(200)
+        .send(docs);
+    }
+  } catch (err) {
+    res.status(404).send(err);
+  }
 });

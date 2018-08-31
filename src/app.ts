@@ -1,56 +1,79 @@
-
-import env from 'dotenv';
+import env from "dotenv";
 env.config();
 
-import * as util from 'util';
-import * as cors from 'cors';
+import * as cors from "cors";
+import express from "express";
+import bodyParser from "body-parser";
+import multer from "multer";
+import { loadData } from "./utils/collectionUtils";
 
-import mongoose from 'mongoose';
-mongoose.Promise = global.Promise;
-
-import express from 'express';
-import bodyParser from 'body-parser';
+import loki from "lokijs";
+import lfsa from "lokijs/src/loki-fs-structured-adapter";
 
 //Set up express
 export const app = express();
 app.set("port", process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080);
-app.set("ip", process.env.IP || process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0');
+app.set("ip", process.env.IP || process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0");
 
-//Middlware
-app.use(cors.default({origin: '*'}));
-app.use(bodyParser.json());
+//DB Config
+app.set("dbPath", process.env.DB_PATH || "/tmp");
+app.set("dbName", process.env.DB_NAME || "eventdb");
+app.set("uploadsPath", process.env.UPLOADS_PATH || "/tmp/uploads");
 
-//App Config
-app.set('dbHost', process.env.DB_HOST);
-app.set('dbPort', process.env.DB_PORT);
-app.set('dbURL',  util.format("mongodb://%s:%s", app.get('dbHost'), app.get('dbPort')));
-app.set('dbName', process.env.DB_NAME);
-app.set('dbUser', process.env.DB_USER);
-app.set('dbUserPassword', process.env.DB_USER_PASSWORD);
-
-export const mongooseConn = mongoose.connect(app.get('dbURL'), {
-  dbName: app.get('dbName'),
-  auth: {
-    user: app.get('dbUser'),
-    password: app.get('dbUserPassword')
-  }
+//DB Init
+const uploads = multer({
+  dest: `${app.get("uploadsPath")}`
 });
 
-//Questions routes
-import './api/questions';
+console.log("Using DB", `${app.get("dbPath")}${app.get("dbName")}`);
+const lokiFsStructAdapter = new lfsa();
+export const db = new loki(`${app.get("dbPath")}${app.get("dbName")}`, {
+  adapter: lokiFsStructAdapter,
+  autoload: true,
+  autoloadCallback: databaseInitialize,
+  autosave: true,
+  autosaveInterval: 4000
+});
 
-//Quiz routes
-import './api/quiz';
+function databaseInitialize() {
+  let collectionName = "questions";
+  let collection = db.getCollection(collectionName);
+  let data = require("./data/questions_data.json");
+  collection =
+    db.getCollection(collectionName) || db.addCollection(collectionName);
+  loadData(collection, data)
+    .then((s: string) => {
+      console.log("Successfully Loaded default questions");
+    })
+    .catch((err: any) => console.log("Error loading data", err));
+
+  collectionName = "frames";
+  data = require("./data/frame_data.json");
+  collection =
+    db.getCollection(collectionName) || db.addCollection(collectionName);
+  loadData(collection, data)
+    .then((s: string) => {
+      console.log("Successfully Loaded default Frames");
+    })
+    .catch((err: any) => console.log("Error loading Frames data", err));
+}
+
+//Middlware
+app.use(cors.default({ origin: "*" }));
+app.use(bodyParser.json());
+
+//Questions routes
+import "./api/questions";
+
+//Frames routes
+import "./api/frames";
 
 //Start the server
-mongooseConn.then((conn) => {
-  console.log(`\n  Connection with DB: "${app.get('dbURL')}" established successfully.`);
-  app.listen(app.get("port"), () => {
-    console.log(
-      "\n  App is running at http://localhost:%d in %s mode.",
-      app.get("port"),
-      app.get("env")
-    );
-    console.log("\n  Press CTRL-C to stop\n");
-  });
-}).catch((err) => console.log(err));
+app.listen(app.get("port"), () => {
+  console.log(
+    "\n  App is running at http://localhost:%d in %s mode.",
+    app.get("port"),
+    app.get("env")
+  );
+  console.log("\n  Press CTRL-C to stop\n");
+});
