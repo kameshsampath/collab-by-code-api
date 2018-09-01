@@ -21,7 +21,7 @@ app.set("dbName", process.env.DB_NAME || "eventdb");
 app.set("uploadsPath", process.env.UPLOADS_PATH || "/tmp/uploads");
 
 //DB Init
-const uploads = multer({
+export const upload = multer({
   dest: `${app.get("uploadsPath")}`
 });
 
@@ -56,6 +56,8 @@ function databaseInitialize() {
       console.log("Successfully Loaded default Frames");
     })
     .catch((err: any) => console.log("Error loading Frames data", err));
+
+  db.getCollection("collaborators") || db.addCollection("collaborators");
 }
 
 //Middlware
@@ -67,6 +69,9 @@ import "./api/questions";
 
 //Frames routes
 import "./api/frames";
+
+//Collaborator routes
+import "./api/collaborators";
 
 //Start the server
 app.listen(app.get("port"), () => {
