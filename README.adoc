@@ -1,0 +1,19 @@
+= Collab By Code Event API
+
+
+== Create Application in OpenShift
+
+[source=sh,attributes=+]
+----
+oc new-app https://github.com/kameshsampath/collab-by-code-api.git
+----
+
+== Development  Build
+
+[source=sh,attributes=+]
+----
+oc start-build collab-by-code-api --from-dir="." --follow
+oc expose svc/collab-by-code-api #<1>
+----
+
+<1> this is needed only for development 

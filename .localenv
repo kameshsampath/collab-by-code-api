@@ -1,6 +1,0 @@
-DEV_MODE=true
-DB_HOST=localhost
-DB_PORT=27017
-DB_NAME=sampledb
-DB_USER=admin
-DB_USER_PASSWORD=password

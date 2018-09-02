@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node dist/index.js",
-    "build": "NODE_ENV=production webpack --config ./prod.config.js",
+    "build": "NODE_ENV=production webpack --mode production",
     "watch": "NODE_ENV=development webpack --mode development --watch",
     "dev": "nodemon dist/index.js"
   },

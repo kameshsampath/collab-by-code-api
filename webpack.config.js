@@ -5,6 +5,14 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 
 var nodeModules = {};
+var pluginModules = [new CopyWebpackPlugin([{ from: "src/data", to: "data" }])];
+
+if (process.env.NODE_ENV === "Development") {
+  pluginModules.push(new Dotenv());
+} else {
+  pluginModules.push(new CleanWebpackPlugin());
+}
+
 fs.readdirSync("node_modules")
   .filter(function(x) {
     return [".bin"].indexOf(x) === -1;
@@ -27,11 +35,7 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".json"]
   },
-  plugins: [
-    new Dotenv(),
-    //new CleanWebpackPlugin(),
-    new CopyWebpackPlugin([{ from: "src/data", to: "data" }])
-  ],
+  plugins: pluginModules,
   output: {
     filename: "index.js",
     path: path.resolve(__dirname, "dist")

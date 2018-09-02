@@ -1,5 +1,7 @@
 import env from "dotenv";
-env.config();
+if (process.env.NODE_ENV === "development") {
+  env.config();
+}
 
 import * as cors from "cors";
 import express from "express";
@@ -17,7 +19,7 @@ app.set("ip", process.env.IP || process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0");
 
 //DB Config
 app.set("dbPath", process.env.DB_PATH || "/tmp");
-app.set("dbName", process.env.DB_NAME || "eventdb");
+app.set("dbName", process.env.DB_NAME || "eventdb.json");
 app.set("uploadsPath", process.env.UPLOADS_PATH || "/tmp/uploads");
 
 //DB Init
@@ -25,7 +27,7 @@ export const upload = multer({
   dest: `${app.get("uploadsPath")}`
 });
 
-console.log("Using DB", `${app.get("dbPath")}${app.get("dbName")}`);
+console.log("Using DB", `${app.get("dbPath")}/${app.get("dbName")}`);
 const lokiFsStructAdapter = new lfsa();
 export const db = new loki(`${app.get("dbPath")}${app.get("dbName")}`, {
   adapter: lokiFsStructAdapter,
