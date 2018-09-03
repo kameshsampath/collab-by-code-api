@@ -4,16 +4,23 @@ if (process.env.NODE_ENV === "development") {
 }
 
 import * as cors from "cors";
+import * as fs from "fs";
 import express from "express";
+import * as http from "http";
 import bodyParser from "body-parser";
 import multer from "multer";
+import * as chokidar from "chokidar";
 import { loadData } from "./utils/collectionUtils";
 
 import loki from "lokijs";
 import lfsa from "lokijs/src/loki-fs-structured-adapter";
 
+export const log = console.log.bind(console);
+
 //Set up express
 export const app = express();
+let httpServer = new http.Server(app);
+
 app.set("port", process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080);
 app.set("ip", process.env.IP || process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0");
 
@@ -27,7 +34,7 @@ export const upload = multer({
   dest: `${app.get("uploadsPath")}`
 });
 
-console.log("Using DB", `${app.get("dbPath")}/${app.get("dbName")}`);
+log("Using DB", `${app.get("dbPath")}/${app.get("dbName")}`);
 const lokiFsStructAdapter = new lfsa();
 export const db = new loki(`${app.get("dbPath")}${app.get("dbName")}`, {
   adapter: lokiFsStructAdapter,
@@ -45,9 +52,9 @@ function databaseInitialize() {
     db.getCollection(collectionName) || db.addCollection(collectionName);
   loadData(collection, data)
     .then((s: string) => {
-      console.log("Successfully Loaded default questions");
+      log("Successfully Loaded default questions");
     })
-    .catch((err: any) => console.log("Error loading data", err));
+    .catch((err: any) => log("Error loading data", err));
 
   collectionName = "frames";
   data = require("./data/frame_data.json");
@@ -55,7 +62,7 @@ function databaseInitialize() {
     db.getCollection(collectionName) || db.addCollection(collectionName);
   loadData(collection, data)
     .then((s: string) => {
-      console.log("Successfully Loaded default Frames");
+      log("Successfully Loaded default Frames");
     })
     .catch((err: any) => console.log("Error loading Frames data", err));
 
@@ -64,6 +71,7 @@ function databaseInitialize() {
 
 //Middlware
 app.use(cors.default({ origin: "*" }));
+app.use("/avatars", express.static(app.get("uploadsPath")));
 app.use(bodyParser.json());
 
 //Questions routes
@@ -75,12 +83,29 @@ import "./api/frames";
 //Collaborator routes
 import "./api/collaborators";
 
+export const io = require("socket.io")(httpServer);
+
+io.on("connection", (socket: any) => {
+  let watcher = chokidar.watch(`${app.get("uploadsPath")}`, {
+    ignored: /(^|[\/\\])\../,
+    persistent: true,
+    ignoreInitial: false
+  });
+  //TODO avoid duplicate
+  watcher.on("add", path => {
+    log("Reading Path", path);
+    var content = fs.readFileSync(path);
+    //console.log("content", content);
+    io.emit("c_avatars", content);
+  });
+});
+
 //Start the server
-app.listen(app.get("port"), () => {
-  console.log(
+httpServer.listen(app.get("port"), () => {
+  log(
     "\n  App is running at http://localhost:%d in %s mode.",
     app.get("port"),
     app.get("env")
   );
-  console.log("\n  Press CTRL-C to stop\n");
+  log("\n  Press CTRL-C to stop\n");
 });

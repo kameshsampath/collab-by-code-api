@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { app, db, upload } from "../app";
+import { app, db, upload, io, log } from "../app";
 import { loadCollection } from "../utils/collectionUtils";
 import * as fs from "fs-extra";
 
@@ -17,6 +17,30 @@ app.get(
           .status(200)
           .send(docs);
       }
+    } catch (err) {
+      res.status(404).send(err);
+    }
+  }
+);
+
+//Get all collaborator avatars
+app.get(
+  "/api/collaborators/avatars",
+  async (req: Request, res: Response, next: any) => {
+    //TODO move this to higher order function
+    try {
+      const cCollaborators = await loadCollection("collaborators", db);
+      const docs = cCollaborators.find();
+      var avatars: any = [];
+      if (docs) {
+        docs.forEach((e: any) => {
+          avatars.push({ email: e.email, avatar: e.file.filename });
+        });
+      }
+      return res
+        .contentType("json")
+        .status(200)
+        .send(avatars);
     } catch (err) {
       res.status(404).send(err);
     }
