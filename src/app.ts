@@ -4,7 +4,7 @@ if (process.env.NODE_ENV === "development") {
 }
 
 import * as cors from "cors";
-import * as fs from "fs";
+import * as path from "path";
 import express from "express";
 import * as http from "http";
 import bodyParser from "body-parser";
@@ -74,6 +74,9 @@ app.use(cors.default({ origin: "*" }));
 app.use("/avatars", express.static(app.get("uploadsPath")));
 app.use(bodyParser.json());
 
+export const asyncHandler = fn => (req, res, next) =>
+  Promise.resolve(fn(req, res, next)).catch(err => res.status(404).send(err));
+
 //Questions routes
 import "./api/questions";
 
@@ -92,11 +95,10 @@ io.on("connection", (socket: any) => {
     ignoreInitial: false
   });
   //TODO avoid duplicate
-  watcher.on("add", path => {
-    log("Reading Path", path);
-    var content = fs.readFileSync(path);
+  watcher.on("add", p => {
+    //log("Reading Path", p);
     //console.log("content", content);
-    io.emit("c_avatars", content);
+    io.emit("c_avatars", path.basename(p));
   });
 });
 
