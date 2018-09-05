@@ -4,12 +4,11 @@ if (process.env.NODE_ENV === "development") {
 }
 
 import * as cors from "cors";
-import * as path from "path";
 import express from "express";
 import * as http from "http";
 import bodyParser from "body-parser";
 import multer from "multer";
-import * as chokidar from "chokidar";
+//import * as chokidar from "chokidar";
 import { loadData } from "./utils/collectionUtils";
 
 import loki from "lokijs";
@@ -89,17 +88,17 @@ import "./api/collaborators";
 export const io = require("socket.io")(httpServer);
 
 io.on("connection", (socket: any) => {
-  let watcher = chokidar.watch(`${app.get("uploadsPath")}`, {
-    ignored: /(^|[\/\\])\../,
-    persistent: true,
-    ignoreInitial: false
-  });
-  //TODO avoid duplicate
-  watcher.on("add", p => {
-    //log("Reading Path", p);
-    //console.log("content", content);
-    io.emit("c_avatars", path.basename(p));
-  });
+  // let watcher = chokidar.watch(`${app.get("uploadsPath")}`, {
+  //   ignored: /(^|[\/\\])\../,
+  //   persistent: true,
+  //   ignoreInitial: false
+  // });
+  // //TODO avoid duplicate
+  // watcher.on("add", p => {
+  //   //log("Reading Path", p);
+  //   //console.log("content", content);
+  //   io.emit("c_avatars", path.basename(p));
+  // });
 });
 
 //Start the server

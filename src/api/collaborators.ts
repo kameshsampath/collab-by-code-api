@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { app, db, asyncHandler, upload } from "../app";
+import { app, db, asyncHandler, upload, io } from "../app";
 import { loadCollection } from "../utils/collectionUtils";
 import * as fs from "fs-extra";
 
@@ -26,7 +26,7 @@ app.get(
     if (docs) {
       docs.forEach((e: any) => {
         if (e.file) {
-          avatars.push(e.file.filename);
+          avatars.push({ email: e.email, avatar: e.file.filename });
         }
       });
     }
@@ -43,20 +43,31 @@ app.post(
   upload.single("avatar"),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     const formFields = req.body;
+    //validate email
     //console.log("File", req.file);
     // console.log("Form", formField);
+    const email = formFields.email;
     const cCollaborators = await loadCollection("collaborators", db);
-    let insertDoc = {
-      email: formFields.email,
-      responses: JSON.parse(formFields.userRespones),
-      file: req.file
-    };
-    const doc = cCollaborators.insert(insertDoc);
-    if (doc) {
+    let cDoc = cCollaborators.findOne({ email });
+    if (!cDoc) {
+      let insertDoc = {
+        email,
+        responses: JSON.parse(formFields.userRespones),
+        file: req.file
+      };
+      const doc = cCollaborators.insert(insertDoc);
+      if (doc) {
+        io.emit("c_avatars", { email: doc.email, avatar: doc.file.filename });
+        return res
+          .contentType("json")
+          .status(200)
+          .send(doc);
+      }
+    } else {
       return res
         .contentType("json")
-        .status(200)
-        .send(doc);
+        .status(400)
+        .send(`Collaborator with ${email} already exists`);
     }
   })
 );
