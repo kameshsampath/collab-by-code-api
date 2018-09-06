@@ -11,7 +11,6 @@ objects:
     apiVersion: v1
     metadata:
       name: collab-by-code-api
-      annotations: {}
     data:
       db.path: "/opt/app-root/src/dist"
       db.name: "eventdb.json"
@@ -19,7 +18,6 @@ objects:
   - apiVersion: v1
     kind: Service
     metadata:
-      annotations: {}
       labels:
         app: collab-by-code-api
       name: collab-by-code-api
@@ -30,85 +28,26 @@ objects:
           protocol: TCP
           targetPort: 8080
       selector:
-        deploymentconfig: collab-by-code-api
-      sessionAffinity: None
-      type: ClusterIP
-  - apiVersion: apps.openshift.io/v1
-    kind: DeploymentConfig
-    metadata:
-      annotations: {}
-      labels:
         app: collab-by-code-api
+  - kind: ImageStream
+    apiVersion: v1
+    metadata:
       name: collab-by-code-api
-    spec:
-      replicas: 1
-      selector:
-        deploymentconfig: collab-by-code-api
-      strategy:
-        activeDeadlineSeconds: 21600
-        resources: {}
-        rollingParams:
-          intervalSeconds: 1
-          maxSurge: 25%
-          maxUnavailable: 25%
-          timeoutSeconds: 600
-          updatePeriodSeconds: 1
-        type: Rolling
-      template:
-        metadata:
-          labels:
-            app: collab-by-code-api
-            deploymentconfig: collab-by-code-api
-        spec:
-          containers:
-            - env:
-                - name: DB_PATH
-                  valueFrom:
-                    configMapKeyRef:
-                      name: collab-by-code-api
-                      key: db.path
-                - name: DB_NAME
-                  valueFrom:
-                    configMapKeyRef:
-                      name: collab-by-code-api
-                      key: db.name
-                - name: UPLOADS_PATH
-                  valueFrom:
-                    configMapKeyRef:
-                      name: collab-by-code-api
-                      key: uploads.path
-              image: "collab-by-code-api:latest"
-              imagePullPolicy: IfNotPresent
-              name: collab-by-code-api
-              ports:
-                - containerPort: 8080
-                  protocol: TCP
-              resources: {}
-              terminationMessagePath: /dev/termination-log
-              terminationMessagePolicy: File
-        triggers:
-          - imageChangeParams:
-              automatic: true
-              containerNames:
-                - collab-by-code-api
-              from:
-                kind: ImageStreamTag
-                name: "collab-by-code-api:latest"
-                namespace: myproject
-            type: ImageChange
-          - type: ConfigChange
+      annotations:
+        description: "Collab by Code Event API"
   - apiVersion: build.openshift.io/v1
     kind: BuildConfig
     metadata:
-      annotations: {}
+      annotations:
+        template.alpha.openshift.io/wait-for-ready: "true"
       labels:
         app: collab-by-code-api
       name: collab-by-code-api
     spec:
-      ouput:
+      output:
         to:
           kind: ImageStreamTag
-          name: "collab-by-code-api:latest"
+          name: collab-by-code-api:latest
       source:
         git:
           ref: master
@@ -130,3 +69,63 @@ objects:
           type: GitHub
         - type: ImageChange
         - type: ConfigChange
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    metadata:
+      annotations:
+        template.alpha.openshift.io/wait-for-ready: "true"
+      labels:
+        app: collab-by-code-api
+      name: collab-by-code-api
+    spec:
+      strategy:
+        type: Rolling
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - collab-by-code-api
+            from:
+              kind: ImageStreamTag
+              name: "collab-by-code-api:latest"
+          type: ImageChange
+        - type: ConfigChange
+      replicas: 1
+      selector:
+        app: collab-by-code-api
+      template:
+        metadata:
+          name: collab-by-code-api
+          labels:
+            app: collab-by-code-api
+        spec:
+          containers:
+            - env:
+                - name: DB_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: collab-by-code-api
+                      key: db.path
+                - name: DB_NAME
+                  valueFrom:
+                    configMapKeyRef:
+                      name: collab-by-code-api
+                      key: db.name
+                - name: UPLOADS_PATH
+                  valueFrom:
+                    configMapKeyRef:
+                      name: collab-by-code-api
+                      key: uploads.path
+              image: "collab-by-code-api:latest"
+              name: collab-by-code-api
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              volumeMounts:
+                - mountPath: ${DB_PATH}
+                  name: dbpath
+              resources: {}
+          volumes:
+            - name: dbpath
+              persistentVolumeClaim:
+                claimName: "collabbycode"
