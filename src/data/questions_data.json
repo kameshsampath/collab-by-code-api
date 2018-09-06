@@ -20,31 +20,6 @@
     ]
   },
   {
-    "question": "What’s your favorite type of hat?",
-    "options": [
-      {
-        "index": "A",
-        "text": "Fedora",
-        "frame": "frame4"
-      },
-      {
-        "index": "B",
-        "text": "Baseball cap",
-        "frame": "frame5"
-      },
-      {
-        "index": "C",
-        "text": "Beret",
-        "frame": "frame6"
-      },
-      {
-        "index": "D",
-        "text": "Cowboy hat",
-        "frame": "frame7"
-      }
-    ]
-  },
-  {
     "question": "Who is your favorite superhero?",
     "options": [
       {
@@ -66,6 +41,31 @@
         "index": "D",
         "text": "Katherine Johnson, NASA “human computer” instrumental in putting the first American in space",
         "frame": "frame11"
+      }
+    ]
+  },
+  {
+    "question": "What’s your favorite type of hat?",
+    "options": [
+      {
+        "index": "A",
+        "text": "Fedora",
+        "frame": "frame4"
+      },
+      {
+        "index": "B",
+        "text": "Baseball cap",
+        "frame": "frame5"
+      },
+      {
+        "index": "C",
+        "text": "Beret",
+        "frame": "frame6"
+      },
+      {
+        "index": "D",
+        "text": "Cowboy hat",
+        "frame": "frame7"
       }
     ]
   }
