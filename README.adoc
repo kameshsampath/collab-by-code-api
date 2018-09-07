@@ -10,9 +10,11 @@ oc new-app https://github.com/kameshsampath/collab-by-code-api.git
 
 == Development  Build
 
+Assuming you have access to OpenShift  cluster
 [source=sh,attributes=+]
 ----
-oc start-build collab-by-code-api --from-dir="." --follow
+npm -g install nodeshift
+npx nodeshift --strictSSL=false --dockerImage=bucharestgold/centos7-s2i-web-app  --build.env YARN_ENABLED=false --deploy.port 3000
 oc expose svc/collab-by-code-api #<1>
 ----
 

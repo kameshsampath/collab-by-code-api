@@ -18,15 +18,17 @@ objects:
   - apiVersion: v1
     kind: Service
     metadata:
+      annotations:
+        service.alpha.openshift.io/serving-cert-secret-name: collab-by-code-api
       labels:
         app: collab-by-code-api
       name: collab-by-code-api
     spec:
       ports:
         - name: web
-          port: 8080
+          port: 8443
           protocol: TCP
-          targetPort: 8080
+          targetPort: 8443
       selector:
         app: collab-by-code-api
   - kind: ImageStream
@@ -50,8 +52,8 @@ objects:
           name: collab-by-code-api:latest
       source:
         git:
-          ref: master
-          uri: "https://github.com/kameshsampath/collab-by-code-api.git"
+          ref: ${SOURCE_REPOSITORY_REF}
+          uri: ${SOURCE_REPOSITORY_URL}
         type: Git
       strategy:
         sourceStrategy:
@@ -62,10 +64,10 @@ objects:
         type: Source
       triggers:
         - generic:
-            secret: 20d85e46ec8875fe
+            secret: ${GENERIC_WEBHOOK_SECRET}
           type: Generic
         - github:
-            secret: 1229ed9ba5fe5002
+            secret: ${GITHUB_WEBHOOK_SECRET}
           type: GitHub
         - type: ImageChange
         - type: ConfigChange
@@ -119,13 +121,36 @@ objects:
               image: "collab-by-code-api:latest"
               name: collab-by-code-api
               ports:
-                - containerPort: 8080
+                - containerPort: 8443
                   protocol: TCP
               volumeMounts:
                 - mountPath: ${DB_PATH}
                   name: dbpath
+                - mountPath: "/etc/svccerts"
+                  name: collab-by-code-api-certs
               resources: {}
           volumes:
             - name: dbpath
               persistentVolumeClaim:
                 claimName: "collabbycode"
+            - name: collab-by-code-api-certs
+              secret:
+                secretName: collab-by-code-api
+parameters:
+  - name: GITHUB_WEBHOOK_SECRET
+    displayName: "GitHub Webhook Secret"
+    description: "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted."
+    generate: "expression"
+    from: "[a-zA-Z0-9]{40}"
+  - name: GENERIC_WEBHOOK_SECRET
+    displayName: "Generic Webhook Secret"
+    description: "A secret string used to configure the Generic webhook."
+    generate: "expression"
+    from: "[a-zA-Z0-9]{40}"
+  - description: Git branch/tag reference
+    name: SOURCE_REPOSITORY_REF
+    value: master
+  - description: Git source URL for application
+    name: SOURCE_REPOSITORY_URL
+    required: true
+    value: https://github.com/kameshsampath/collab-by-code-api.git

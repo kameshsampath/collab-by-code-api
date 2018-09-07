@@ -6,6 +6,8 @@ if (process.env.NODE_ENV === "development") {
 import * as cors from "cors";
 import express from "express";
 import * as http from "http";
+import * as https from "https";
+import * as fs from "fs";
 import bodyParser from "body-parser";
 import multer from "multer";
 //import * as chokidar from "chokidar";
@@ -18,9 +20,15 @@ export const log = console.log.bind(console);
 
 //Set up express
 export const app = express();
-let httpServer = new http.Server(app);
 
-app.set("port", process.env.PORT || process.env.OPENSHIFT_NODEJS_PORT || 8080);
+const sslOpts = {
+  key: fs.readFileSync("/etc/svccerts/tls.key"),
+  cert: fs.readFileSync("/etc/svccerts/tls.crt")
+};
+
+let httpsServer = https.createServer(sslOpts, app);
+
+app.set("port", 8443);
 app.set("ip", process.env.IP || process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0");
 
 //DB Config
@@ -85,7 +93,7 @@ import "./api/frames";
 //Collaborator routes
 import "./api/collaborators";
 
-export const io = require("socket.io")(httpServer);
+export const io = require("socket.io")(httpsServer);
 
 io.on("connection", (socket: any) => {
   // let watcher = chokidar.watch(`${app.get("uploadsPath")}`, {
@@ -102,9 +110,9 @@ io.on("connection", (socket: any) => {
 });
 
 //Start the server
-httpServer.listen(app.get("port"), () => {
+httpsServer.listen(app.get("port"), () => {
   log(
-    "\n  App is running at http://localhost:%d in %s mode.",
+    "\n  App is running at https://localhost:%d in %s mode.",
     app.get("port"),
     app.get("env")
   );

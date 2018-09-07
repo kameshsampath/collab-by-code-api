@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: collab-by-code-api
+data:
+  db.path: "/opt/app-root/src/dist"
+  db.name: "eventdb.json"
+  uploads.path: "/opt/app-root/src/dist/uploads"
