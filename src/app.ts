@@ -21,14 +21,19 @@ export const log = console.log.bind(console);
 //Set up express
 export const app = express();
 
-const sslOpts = {
-  key: fs.readFileSync("/etc/svccerts/tls.key"),
-  cert: fs.readFileSync("/etc/svccerts/tls.crt")
-};
+let webServer;
+if (process.env.NODE_ENV != "development") {
+  const sslOpts = {
+    key: fs.readFileSync("/etc/svccerts/tls.key"),
+    cert: fs.readFileSync("/etc/svccerts/tls.crt")
+  };
+  webServer = https.createServer(sslOpts, app);
+  app.set("port", 8443);
+} else {
+  webServer = new http.Server(app);
+  app.set("port", process.env.PORT || 8080);
+}
 
-let httpsServer = https.createServer(sslOpts, app);
-
-app.set("port", 8443);
 app.set("ip", process.env.IP || process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0");
 
 //DB Config
@@ -52,9 +57,9 @@ export const db = new loki(`${app.get("dbPath")}${app.get("dbName")}`, {
 });
 
 function databaseInitialize() {
-  let collectionName = "questions";
-  let collection = db.getCollection(collectionName);
   let data = require("./data/questions_data.json");
+  let collectionName = "questions";
+  let collection;
   collection =
     db.getCollection(collectionName) || db.addCollection(collectionName);
   loadData(collection, data)
@@ -82,7 +87,7 @@ app.use("/avatars", express.static(app.get("uploadsPath")));
 app.use(bodyParser.json());
 
 export const asyncHandler = fn => (req, res, next) =>
-  Promise.resolve(fn(req, res, next)).catch(err => res.status(404).send(err));
+  Promise.resolve(fn(req, res, next)).catch(next);
 
 //Questions routes
 import "./api/questions";
@@ -93,24 +98,12 @@ import "./api/frames";
 //Collaborator routes
 import "./api/collaborators";
 
-export const io = require("socket.io")(httpsServer);
+export const io = require("socket.io")(webServer);
 
-io.on("connection", (socket: any) => {
-  // let watcher = chokidar.watch(`${app.get("uploadsPath")}`, {
-  //   ignored: /(^|[\/\\])\../,
-  //   persistent: true,
-  //   ignoreInitial: false
-  // });
-  // //TODO avoid duplicate
-  // watcher.on("add", p => {
-  //   //log("Reading Path", p);
-  //   //console.log("content", content);
-  //   io.emit("c_avatars", path.basename(p));
-  // });
-});
+io.on("connection", (socket: any) => {});
 
 //Start the server
-httpsServer.listen(app.get("port"), () => {
+webServer.listen(app.get("port"), () => {
   log(
     "\n  App is running at https://localhost:%d in %s mode.",
     app.get("port"),

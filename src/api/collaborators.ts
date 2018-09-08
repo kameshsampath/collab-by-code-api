@@ -7,7 +7,7 @@ import * as fs from "fs-extra";
 app.get(
   "/api/collaborators",
   asyncHandler(async (req: Request, res: Response, next: any) => {
-    const cCollaborators = await loadCollection("collaborators", db);
+    const cCollaborators = db.getCollection("collaborators");
     const docs = cCollaborators.find();
     return res
       .contentType("json")
@@ -20,7 +20,7 @@ app.get(
 app.get(
   "/api/collaborators/avatars",
   asyncHandler(async (req: Request, res: Response, next: any) => {
-    const cCollaborators = await loadCollection("collaborators", db);
+    const cCollaborators = db.getCollection("collaborators");
     const docs = cCollaborators.find();
     var avatars: any = [];
     if (docs) {
@@ -45,18 +45,19 @@ app.post(
     const formFields = req.body;
     //validate email
     //console.log("File", req.file);
-    // console.log("Form", formField);
+    //console.log("Form", formFields);
     const email = formFields.email;
-    const cCollaborators = await loadCollection("collaborators", db);
+    const cCollaborators = db.getCollection("collaborators");
     let cDoc = cCollaborators.findOne({ email });
     if (!cDoc) {
       let insertDoc = {
         email,
-        responses: JSON.parse(formFields.userRespones),
+        responses: JSON.parse(formFields.userResponses),
         file: req.file
       };
       const doc = cCollaborators.insert(insertDoc);
       if (doc) {
+        console.log("Successfully Saved");
         io.emit("c_avatars", { email: doc.email, avatar: doc.file.filename });
         return res
           .contentType("json")
@@ -78,7 +79,7 @@ app.delete(
   asyncHandler(async (req: Request, res: Response, next: any) => {
     const email = req.params["email"];
     //console.log("Delete by email ", email);
-    const cCollaborators = await loadCollection("collaborators", db);
+    const cCollaborators = db.getCollection("collaborators");
     const doc = cCollaborators.findOne({ email });
     if (doc) {
       try {
@@ -103,7 +104,7 @@ app.delete(
 app.delete(
   "/api/collaborators",
   asyncHandler(async (req: Request, res: Response, next: any) => {
-    const cCollaborators = await loadCollection("collaborators", db);
+    const cCollaborators = db.getCollection("collaborators");
     cCollaborators.clear({ removeIndices: true });
     try {
       await fs.emptyDir(`${app.get("uploadsPath")}`);
