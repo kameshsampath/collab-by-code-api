@@ -21,3 +21,6 @@ yarn-error.log*
 *.sln
 *.sw*
 tmp/**
+
+# Keycloak configurations
+**/keycloak.json

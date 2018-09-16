@@ -1,16 +1,15 @@
 import env from "dotenv";
 if (process.env.NODE_ENV === "development") {
   env.config();
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 }
 
 import * as cors from "cors";
 import express from "express";
+import helmet from "helmet";
 import * as http from "http";
-import * as https from "https";
-import * as fs from "fs";
 import bodyParser from "body-parser";
 import multer from "multer";
-//import * as chokidar from "chokidar";
 import { loadData } from "./utils/collectionUtils";
 
 import loki from "lokijs";
@@ -20,26 +19,46 @@ export const log = console.log.bind(console);
 
 //Set up express
 export const app = express();
+app.use(helmet());
+app.disable("x-powered-by");
 
-let webServer;
-if (process.env.NODE_ENV != "development") {
-  const sslOpts = {
-    key: fs.readFileSync("/etc/svccerts/tls.key"),
-    cert: fs.readFileSync("/etc/svccerts/tls.crt")
-  };
-  webServer = https.createServer(sslOpts, app);
-  app.set("port", 8443);
-} else {
-  webServer = new http.Server(app);
-  app.set("port", process.env.PORT || 8080);
-}
+//Keycloak Configuration
+let session = require("express-session");
+let Keycloak = require("keycloak-connect");
 
+let memoryStore = new session.MemoryStore();
+
+app.use(
+  session({
+    secret: "superS3ret",
+    resave: false,
+    saveUninitialized: true,
+    store: memoryStore
+  })
+);
+
+console.log("Using Keycloak :", process.env.KEYCLOAK_URL);
+
+export const kcConfig = require("./keycloak.json");
+console.log("Using Keycloak Config ", kcConfig);
+
+export const keycloak = new Keycloak({ store: memoryStore }, kcConfig);
+
+app.use(keycloak.middleware());
+
+let webServer = new http.Server(app);
+app.set("port", process.env.PORT || 8080);
 app.set("ip", process.env.IP || process.env.OPENSHIFT_NODEJS_IP || "0.0.0.0");
 
 //DB Config
 app.set("dbPath", process.env.DB_PATH || "/tmp");
 app.set("dbName", process.env.DB_NAME || "eventdb.json");
 app.set("uploadsPath", process.env.UPLOADS_PATH || "/tmp/uploads");
+
+//Middlware
+app.use(cors.default({ origin: "*" }));
+app.use("/avatars", express.static(app.get("uploadsPath")));
+app.use(bodyParser.json());
 
 //DB Init
 export const upload = multer({
@@ -81,10 +100,9 @@ function databaseInitialize() {
   db.getCollection("collaborators") || db.addCollection("collaborators");
 }
 
-//Middlware
-app.use(cors.default({ origin: "*" }));
-app.use("/avatars", express.static(app.get("uploadsPath")));
-app.use(bodyParser.json());
+app.get("/admin", keycloak.protect("realm:user"), (req, res) => {
+  res.status(200).send("You got it !!!");
+});
 
 export const asyncHandler = fn => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);

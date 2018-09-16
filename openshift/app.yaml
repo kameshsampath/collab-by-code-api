@@ -1,36 +1,82 @@
 apiVersion: v1
 kind: Template
 metadata:
-  name: collab-by-code-api-template
+  name: collab-by-code-api
   annotations:
     description: "RHCollab By Code Event API"
     iconClass: "icon-nodejs"
     tags: "nodejs"
+parameters:
+  - name: GITHUB_WEBHOOK_SECRET
+    displayName: "GitHub Webhook Secret"
+    description: "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted."
+    generate: "expression"
+    from: "[a-zA-Z0-9]{40}"
+  - name: GENERIC_WEBHOOK_SECRET
+    displayName: "Generic Webhook Secret"
+    description: "A secret string used to configure the Generic webhook."
+    generate: "expression"
+    from: "[a-zA-Z0-9]{40}"
+  - description: Git branch/tag reference
+    name: SOURCE_REPOSITORY_REF
+    value: master
+  - description: Git source URL for application
+    name: SOURCE_REPOSITORY_URL
+    required: true
+    value: https://github.com/kameshsampath/collab-by-code-api.git
+  - name: KEYCLOAK_URL
+    description: The Keycloak server URL
+    displayName: Keycloak Server URL
+    value: http://my-keycloak.example.com/auth
+    required: true
+  - name: KEYCLOAK_REALM
+    description: The Keycloak Realm to use
+    displayName: Keycloak Realm
+    value: collabbycode
+    required: false
+  - name: KEYCLOAK_CLIENT_ID
+    description: The Keycloak Client Id
+    displayName: Keycloak Client Id
+    value: collab-by-code-api
+    required: false
 objects:
   - kind: ConfigMap
     apiVersion: v1
     metadata:
       name: collab-by-code-api
     data:
-      db.path: "/opt/app-root/src/dist"
+      db.path: "/opt/app-root/data"
       db.name: "eventdb.json"
-      uploads.path: "/opt/app-root/src/dist/uploads"
+      uploads.path: "/opt/app-root/data/uploads"
+      keycloak.url: ${KEYCLOAK_URL}
+      keycloak.realm: ${KEYCLOAK_REALM}
+      keycloak.clientId: ${KEYCLOAK_CLIENT_ID}
   - apiVersion: v1
     kind: Service
     metadata:
-      annotations:
-        service.alpha.openshift.io/serving-cert-secret-name: collab-by-code-api
       labels:
         app: collab-by-code-api
       name: collab-by-code-api
     spec:
       ports:
         - name: web
-          port: 8443
+          port: 8080
           protocol: TCP
-          targetPort: 8443
+          targetPort: 8080
       selector:
         app: collab-by-code-api
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    metadata:
+      name: collab-by-code-api
+    spec:
+      port:
+        targetPort: web
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: collab-by-code-api
   - kind: ImageStream
     apiVersion: v1
     metadata:
@@ -118,39 +164,31 @@ objects:
                     configMapKeyRef:
                       name: collab-by-code-api
                       key: uploads.path
+                - name: KEYCLOAK_URL
+                  valueFrom:
+                    configMapKeyRef:
+                      name: collab-by-code-api
+                      key: keycloak.url
+                - name: KEYCLOAK_REALM
+                  valueFrom:
+                    configMapKeyRef:
+                      name: collab-by-code-api
+                      key: keycloak.realm
+                - name: KEYCLOAK_CLIENT_ID
+                  valueFrom:
+                    configMapKeyRef:
+                      name: collab-by-code-api
+                      key: keycloak.clientId
               image: "collab-by-code-api:latest"
               name: collab-by-code-api
               ports:
-                - containerPort: 8443
+                - containerPort: 8080
                   protocol: TCP
               volumeMounts:
                 - mountPath: ${DB_PATH}
                   name: dbpath
-                - mountPath: "/etc/svccerts"
-                  name: collab-by-code-api-certs
               resources: {}
           volumes:
             - name: dbpath
               persistentVolumeClaim:
                 claimName: "collabbycode"
-            - name: collab-by-code-api-certs
-              secret:
-                secretName: collab-by-code-api
-parameters:
-  - name: GITHUB_WEBHOOK_SECRET
-    displayName: "GitHub Webhook Secret"
-    description: "Github trigger secret.  A difficult to guess string encoded as part of the webhook URL.  Not encrypted."
-    generate: "expression"
-    from: "[a-zA-Z0-9]{40}"
-  - name: GENERIC_WEBHOOK_SECRET
-    displayName: "Generic Webhook Secret"
-    description: "A secret string used to configure the Generic webhook."
-    generate: "expression"
-    from: "[a-zA-Z0-9]{40}"
-  - description: Git branch/tag reference
-    name: SOURCE_REPOSITORY_REF
-    value: master
-  - description: Git source URL for application
-    name: SOURCE_REPOSITORY_URL
-    required: true
-    value: https://github.com/kameshsampath/collab-by-code-api.git

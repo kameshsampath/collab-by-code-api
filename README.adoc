@@ -6,6 +6,7 @@
 [source=sh,attributes=+]
 ----
 oc new-app https://github.com/kameshsampath/collab-by-code-api.git
+oc create secret generic collabbycode-keycloak --from-file openshift/keycloak.json
 ----
 
 == Development  Build
