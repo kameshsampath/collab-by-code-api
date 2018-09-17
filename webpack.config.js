@@ -29,6 +29,18 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: "ts-loader"
+      },
+      {
+        test: /\.html$/,
+        use: [
+          {
+            loader: "html-loader",
+            options: {
+              minimize: true,
+              attrs: false
+            }
+          }
+        ]
       }
     ]
   },

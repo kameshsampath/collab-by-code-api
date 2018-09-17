@@ -1,4 +1,5 @@
 import env from "dotenv";
+
 if (process.env.NODE_ENV === "development") {
   env.config();
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -11,6 +12,7 @@ import * as http from "http";
 import bodyParser from "body-parser";
 import multer from "multer";
 import { loadData } from "./utils/collectionUtils";
+import nodemailer from "nodemailer";
 
 import loki from "lokijs";
 import lfsa from "lokijs/src/loki-fs-structured-adapter";
@@ -37,10 +39,10 @@ app.use(
   })
 );
 
-console.log("Using Keycloak :", process.env.KEYCLOAK_URL);
+//console.log("Using Keycloak :", process.env.KEYCLOAK_URL);
 
 export const kcConfig = require("./keycloak.json");
-console.log("Using Keycloak Config ", kcConfig);
+//console.log("Using Keycloak Config ", kcConfig);
 
 export const keycloak = new Keycloak({ store: memoryStore }, kcConfig);
 
@@ -119,6 +121,21 @@ import "./api/collaborators";
 export const io = require("socket.io")(webServer);
 
 io.on("connection", (socket: any) => {});
+
+//Mail Config  - TODO env variables
+const mailConfig = {
+  host: `${process.env.SMTP_HOST}`,
+  port: parseInt(process.env.SMTP_PORT),
+  pool: true
+  // auth: {
+  //   user: `${process.env.SMTP_AUTH_USER}`,
+  //   password: `${process.env.SMTP_AUTH_PASSWORD}`
+  // }
+};
+
+//console.log(mailConfig);
+
+export const transporter = nodemailer.createTransport(mailConfig);
 
 //Start the server
 webServer.listen(app.get("port"), () => {

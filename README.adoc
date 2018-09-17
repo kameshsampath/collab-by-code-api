@@ -1,22 +1,123 @@
 = Collab By Code Event API
 
+This project holds the backend API that will be used by the https://github.com/kameshsampath/collab-by-code-ui[Collab By Code] application.
 
-== Create Application in OpenShift
+== Pre-requisite 
 
-[source=sh,attributes=+]
+* https://www.keycloak.org/[Keycloak]
+
+== Development
+
+Clone the project from GitHub https://github.com/kameshsampath/collab-by-code-api, we will refer to this folder as $PROJECT_HOME for the rest of the document.
+
+=== Keycloak
+
+https://www.keycloak.org/[Keycloak] will be used to secure the API and UI of this application. The following section details on how to configure Keycloak for the application. Please refer to https://www.keycloak.org/docs/latest/getting_started/index.html[Getting Started] if you have not setup Keycloak.
+
+==== Configure Clients in Keycloak
+
+Open the tab with the Keycloak admin console. 
+
+1. Click on "Add Realm" and add a realm called "collabbycode"
+
+2. In the realm "collabbycode" click on Clients and create a new client, for Client ID enter `collab-by-code-api` and click Save. Under Access Type select bearer-only and click on Save.
+
+3. In the realm "collabbycode" click on Clients and create another new client, for Client ID enter `collab-by-code-ui` and click Save. Under Access Type select public and click on Save.  
+
+NOTE: The UI application that we will be deploying later will use the client **collab-by-code-ui** to get itself authenticated with the application.
+
+=== Local
+
+Create `.env` file with the following entries:
+
+```
+DB_PATH=/opt/app-root/data/rhcollab/ <1>
+DB_NAME=eventdb.json <2>
+UPLOADS_PATH=/opt/app-root/data/rhcollab/uploads <3>
+PORT=3000 <4>
+KEYCLOAK_URL=http://localhost:9090/auth <5>
+KEYCLOAK_RELAM=collabbycode <6>
+KEYCLOAK_CLIENT_ID=collab-by-code-api <7>
+```
+
+<1> - the file system path where to store the DB file `evendb.json`
+<2> - The database name
+<3> - the file system path where to upload the photos
+<4> - the default dev environment API port 
+<5> - the Keycloak server url default **http://localhost:9090/auth**
+<6> - the Keycloak relam to use default  **collabbycode**
+<7> - the Keycloak client i to use default  **collab-by-code-api**
+
+Open a new terminal:
+
+[source,bash]
 ----
-oc new-app https://github.com/kameshsampath/collab-by-code-api.git
-oc create secret generic collabbycode-keycloak --from-file openshift/keycloak.json
+#!/bin/bash
+cd $PROEJECT_HOME
+yarn watch
 ----
 
-== Development  Build
+This watches the file changes and recompiles
 
-Assuming you have access to OpenShift  cluster
-[source=sh,attributes=+]
+Open an another terminal:
+
+[source,bash]
 ----
-npm -g install nodeshift
-npx nodeshift --strictSSL=false --dockerImage=bucharestgold/centos7-s2i-web-app  --build.env YARN_ENABLED=false --deploy.port 3000
-oc expose svc/collab-by-code-api #<1>
+#!/bin/bash
+cd $PROEJECT_HOME
+yarn dev
 ----
 
-<1> this is needed only for development 
+This starts the develoment server on port `3000` and reloads if the sources are recompiled
+
+=== Testing API
+
+Since the API's are protected now, you need to get the `access token` to access the API from command line,
+
+Open the tab with the Keycloak admin console, select the **collabbycode** realm and click `Users` add a User say "demo" with password "password". 
+
+NOTE: Please turn of the "Temporary" while setting Credentials to avoid password reset during usage.
+
+==== Obtaining Access Token
+
+[source,bash]
+----
+#!/bin/bash
+RESULT=`curl --data "grant_type=password&client_id=collab-by-code-ui&username=demo&password=password" http://localhost:9090/auth/realms/collabbycode/protocol/openid-connect/token | jq -r '.access_token'`
+TOKEN=`echo $RESULT | sed 's/.*access_token":"//g' | sed 's/".*//g'`
+----
+
+[TIP]
+====
+If you have tool like https://stedolan.github.io/jq/[jq], then the access token can be retrieved using the followign command:
+[source,bash]
+----
+#!/bin/bash
+TOKEN=`curl --data "grant_type=password&client_id=collab-by-code-ui&username=kameshs&password=password" http://localhost:9090/auth/realms/collabbycode/protocol/openid-connect/token | jq -r '.access_token'`
+----
+====
+
+Once you have obtained the token, run the following command to test the application:
+
+[source,bash]
+----
+curl -H "Authorization: Bearer $TOKEN" http://localhost:3000/api/questions
+----
+
+The above curl should return you an `HTTP 200(Success)` response with a JSON having few questions.
+
+You can also validate error by running the following command:
+
+[source,bash]
+----
+curl -I http://localhost:3000/api/questions
+----
+
+The above command should return you an `HTTP 403 (Forbidden)` response
+
+=== OpenShift
+
+
+==== Create Application in OpenShift
+
+TODO
