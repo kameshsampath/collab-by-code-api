@@ -25,28 +25,28 @@ app.use(helmet());
 app.disable("x-powered-by");
 
 //Keycloak Configuration
-let session = require("express-session");
-let Keycloak = require("keycloak-connect");
+// let session = require("express-session");
+// let Keycloak = require("keycloak-connect");
 
-let memoryStore = new session.MemoryStore();
+// let memoryStore = new session.MemoryStore();
 
-app.use(
-  session({
-    secret: "superS3ret",
-    resave: false,
-    saveUninitialized: true,
-    store: memoryStore
-  })
-);
+// app.use(
+//   session({
+//     secret: "superS3ret",
+//     resave: false,
+//     saveUninitialized: true,
+//     store: memoryStore
+//   })
+// );
 
 //console.log("Using Keycloak :", process.env.KEYCLOAK_URL);
 
-export const kcConfig = require("./keycloak.json");
+//export const kcConfig = require("./keycloak.json");
 //console.log("Using Keycloak Config ", kcConfig);
 
-export const keycloak = new Keycloak({ store: memoryStore }, kcConfig);
+// export const keycloak = new Keycloak({ store: memoryStore }, kcConfig);
 
-app.use(keycloak.middleware());
+// app.use(keycloak.middleware());
 
 let webServer = new http.Server(app);
 app.set("port", process.env.PORT || 8080);
@@ -102,9 +102,9 @@ function databaseInitialize() {
   db.getCollection("collaborators") || db.addCollection("collaborators");
 }
 
-app.get("/admin", keycloak.protect("realm:user"), (req, res) => {
-  res.status(200).send("You got it !!!");
-});
+// app.get("/admin", keycloak.protect("realm:user"), (req, res) => {
+//   res.status(200).send("You got it !!!");
+// });
 
 export const asyncHandler = fn => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);

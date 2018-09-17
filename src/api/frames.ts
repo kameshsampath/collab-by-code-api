@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import { app, db, asyncHandler, keycloak } from "../app";
+import { app, db, asyncHandler } from "../app";
 import { loadCollection } from "../utils/collectionUtils";
 
 //Get all frames
 app.get(
   "/api/frames",
-  keycloak.protect(),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     const cFrames = await loadCollection("frames", db);
     const docs = cFrames.find();
@@ -19,7 +18,6 @@ app.get(
 //Load Frames
 app.post(
   "/api/frames",
-  keycloak.protect(),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     let frames = req.body;
     const cFrames = await loadCollection("frames", db);
@@ -38,7 +36,6 @@ app.post(
 //Get one Frame by Id
 app.get(
   "/api/frames/:id",
-  keycloak.protect(),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     let id = req.params["id"];
     console.log("Searching Frame by id = ", id);
@@ -58,7 +55,6 @@ app.get(
 //Update Frame Data
 app.patch(
   "/api/frames/:id",
-  keycloak.protect(),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     let id = req.params["id"];
     //console.log("Updating Frame by id = ", id);

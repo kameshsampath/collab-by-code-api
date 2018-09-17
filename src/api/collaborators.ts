@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { app, db, asyncHandler, upload, io, keycloak } from "../app";
+import { app, db, asyncHandler, upload, io } from "../app";
 import * as fs from "fs-extra";
 import { sendMail, mailSubject } from "../utils/utils";
 
@@ -7,7 +7,6 @@ const mailBody = require("../templates/email_body.html");
 //Get all collaborators
 app.get(
   "/api/collaborators",
-  keycloak.protect(),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     const cCollaborators = db.getCollection("collaborators");
     const docs = cCollaborators.find();
@@ -21,7 +20,6 @@ app.get(
 //Get all collaborator avatars
 app.get(
   "/api/collaborators/avatars",
-  keycloak.protect(),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     const cCollaborators = db.getCollection("collaborators");
     const docs = cCollaborators.find();
@@ -43,7 +41,6 @@ app.get(
 //Save collaborator
 app.post(
   "/api/collaborators",
-  keycloak.protect(),
   upload.single("avatar"),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     const formFields = req.body;
@@ -89,7 +86,6 @@ app.post(
 //Delete collaborator
 app.delete(
   "/api/collaborators/:email",
-  keycloak.protect(),
   asyncHandler(async (req: Request, res: Response, next: any) => {
     const email = req.params["email"];
     //console.log("Delete by email ", email);
