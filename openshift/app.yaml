@@ -139,6 +139,9 @@ objects:
         type: Git
       strategy:
         sourceStrategy:
+          env:
+            - name: NODE_ENV
+              value: development
           from:
             kind: DockerImage
             name: "bucharestgold/centos7-s2i-nodejs:latest"
@@ -194,6 +197,8 @@ objects:
         spec:
           containers:
             - env:
+                - name: NODE_ENV
+                  value: production
                 - name: DB_PATH
                   valueFrom:
                     configMapKeyRef:
