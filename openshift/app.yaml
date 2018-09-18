@@ -39,6 +39,31 @@ parameters:
     displayName: Keycloak Client Id
     value: collab-by-code-api
     required: false
+  - name: SMTP_HOST
+    description: The SMTP Mail Host
+    displayName: SMTP Host
+    value: localhost
+    required: true
+  - name: SMTP_PORT
+    description: The SMTP Mail Port
+    displayName: SMTP Port
+    value: "2525"
+    required: true
+  - name: SMTP_AUTH_USER
+    description: The SMTP Mail User
+    displayName: SMTP User
+    value: test
+    required: true
+  - name: SMTP_AUTH_PASSWORD
+    description: The SMTP Mail User Password
+    displayName: SMTP User Password
+    value: test
+    required: true
+  - name: MAIL_FROM
+    description: The Email From address from which Collab by Code emails will be sent
+    displayName: Email From
+    value: "Collab By Code<collabbycode@example.com>"
+    required: true
 objects:
   - kind: ConfigMap
     apiVersion: v1
@@ -104,9 +129,8 @@ objects:
       strategy:
         sourceStrategy:
           from:
-            kind: ImageStreamTag
-            name: "nodejs:8"
-            namespace: openshift
+            kind: DockerImage
+            name: "bucharestgold/centos7-s2i-nodejs:latest"
         type: Source
       triggers:
         - generic:

@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node ./dist/index.js",
-    "build": "NODE_ENV=production webpack --mode production",
+    "build": "webpack",
     "watch": "NODE_ENV=development webpack --mode development --watch",
     "dev": "NODE_ENV=development PORT=3000 nodemon dist/index.js"
   },

@@ -5,7 +5,12 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
 
 var nodeModules = {};
-var pluginModules = [new CopyWebpackPlugin([{ from: "src/data", to: "data" }])];
+var pluginModules = [
+  new CopyWebpackPlugin([
+    { from: "src/keycloak.json", to: path.resolve(__dirname, "dist") },
+    { from: "src/data", to: `${path.resolve(__dirname, "dist")}/data` }
+  ])
+];
 
 if (process.env.NODE_ENV === "Development") {
   pluginModules.push(new Dotenv());
