@@ -1,5 +1,5 @@
 {
-  "realm": "${env.KEYCLOAK_RELAM}",
+  "realm": "${env.KEYCLOAK_REALM}",
   "bearer-only": true,
   "auth-server-url": "${env.KEYCLOAK_URL}",
   "ssl-required": "external",
