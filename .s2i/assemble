@@ -1,0 +1,13 @@
+#!/bin/bash
+
+/usr/libexec/s2i/assemble
+rc=$?
+
+if [ $? -eq 0 ]; then
+    yarn install --only-dev
+    yarn build
+else
+    echo "Assembly failed"
+fi
+
+exit $rc

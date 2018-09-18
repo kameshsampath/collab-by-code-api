@@ -1,0 +1,7 @@
+{
+  "realm": "${env.KEYCLOAK_RELAM}",
+  "bearer-only": true,
+  "auth-server-url": "${env.KEYCLOAK_URL}",
+  "ssl-required": "external",
+  "resource": "${env.KEYCLOAK_CLIENT_ID}"
+}

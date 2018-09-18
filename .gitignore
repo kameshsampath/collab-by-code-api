@@ -22,6 +22,3 @@ yarn.lock
 *.sln
 *.sw*
 tmp/**
-
-# Keycloak configurations
-**/keycloak.json
