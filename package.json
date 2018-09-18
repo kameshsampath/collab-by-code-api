@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "start": "node ./dist/index.js",
+    "postinstall": "yarn build",
     "build": "webpack",
     "watch": "NODE_ENV=development webpack --mode development --watch",
     "dev": "NODE_ENV=development PORT=3000 nodemon dist/index.js"
