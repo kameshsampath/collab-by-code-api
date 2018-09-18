@@ -6,6 +6,7 @@ metadata:
     description: "RHCollab By Code Event API"
     iconClass: "icon-nodejs"
     tags: "nodejs"
+    openshift.io/display-name: Collab by Code API
 parameters:
   - name: GITHUB_WEBHOOK_SECRET
     displayName: "GitHub Webhook Secret"
@@ -76,6 +77,16 @@ objects:
       keycloak.url: ${KEYCLOAK_URL}
       keycloak.realm: ${KEYCLOAK_REALM}
       keycloak.clientId: ${KEYCLOAK_CLIENT_ID}
+      email.from: ${MAIL_FROM}
+  - kind: Secret
+    apiVersion: v1
+    metadata:
+      name: collab-by-code-api
+    stringData:
+      smtp.host: "${SMTP_HOST}"
+      smtp.port: "${SMTP_PORT}"
+      smtp.auth.user: "${SMTP_AUTH_USER}"
+      smtp.auth.password: "${SMTP_AUTH_PASSWORD}"
   - apiVersion: v1
     kind: Service
     metadata:
@@ -141,6 +152,16 @@ objects:
           type: GitHub
         - type: ImageChange
         - type: ConfigChange
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      name: collabbycode
+    spec:
+      accessModes:
+        - ReadWriteMany
+      resources:
+        requests:
+          storage: 1Gi
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     metadata:
@@ -203,6 +224,31 @@ objects:
                     configMapKeyRef:
                       name: collab-by-code-api
                       key: keycloak.clientId
+                - name: SMTP_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: collab-by-code-api
+                      key: smtp.host
+                - name: SMTP_PORT
+                  valueFrom:
+                    secretKeyRef:
+                      name: collab-by-code-api
+                      key: smtp.port
+                - name: SMTP_AUTH_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: collab-by-code-api
+                      key: smtp.auth.user
+                - name: SMTP_AUTH_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: collab-by-code-api
+                      key: smtp.auth.password
+                - name: MAIL_FROM
+                  valueFrom:
+                    configMapKeyRef:
+                      name: collab-by-code-api
+                      key: email.from
               image: "collab-by-code-api:latest"
               name: collab-by-code-api
               ports:
