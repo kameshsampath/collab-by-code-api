@@ -100,10 +100,6 @@ function databaseInitialize() {
   db.getCollection("collaborators") || db.addCollection("collaborators");
 }
 
-app.get("/admin", keycloak.protect("realm:user"), (req, res) => {
-  res.status(200).send("You got it !!!");
-});
-
 export const asyncHandler = fn => (req, res, next) =>
   Promise.resolve(fn(req, res, next)).catch(next);
 
