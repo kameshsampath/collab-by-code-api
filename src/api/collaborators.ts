@@ -1,9 +1,8 @@
 import { Request, Response } from "express";
 import { app, db, asyncHandler, upload, io, keycloak } from "../app";
 import * as fs from "fs-extra";
-import { sendMail, mailSubject } from "../utils/utils";
+import { handleEmail } from "./mail";
 
-const mailBody = require("../templates/email_body.html");
 //Get all collaborators
 app.get(
   "/api/collaborators",
@@ -63,15 +62,7 @@ app.post(
       if (doc) {
         console.log("Successfully Saved");
         io.emit("c_avatars", { email: doc.email, avatar: doc.file.filename });
-        // Message object - TODO templates
-        let message = {
-          from: `${process.env.MAIL_FROM}`,
-          to: email,
-          subject: mailSubject,
-          html: mailBody,
-          attachments: [{ filename: "avatar.png", path: doc.file.path }]
-        };
-        sendMail(message);
+        handleEmail(doc);
         return res
           .contentType("json")
           .status(200)

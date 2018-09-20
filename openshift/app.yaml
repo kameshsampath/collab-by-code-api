@@ -40,25 +40,9 @@ parameters:
     displayName: Keycloak Client Id
     value: collab-by-code-api
     required: false
-  - name: SMTP_HOST
-    description: The SMTP Mail Host
-    displayName: SMTP Host
-    value: localhost
-    required: true
-  - name: SMTP_PORT
-    description: The SMTP Mail Port
-    displayName: SMTP Port
-    value: "2525"
-    required: true
-  - name: SMTP_AUTH_USER
-    description: The SMTP Mail User
-    displayName: SMTP User
-    value: test
-    required: true
-  - name: SMTP_AUTH_PASSWORD
-    description: The SMTP Mail User Password
-    displayName: SMTP User Password
-    value: test
+  - name: SENDGRID_API_KEY
+    description: The SendGrid API Key
+    displayName: SendGrid API Key
     required: true
   - name: MAIL_FROM
     description: The Email From address from which Collab by Code emails will be sent
@@ -83,10 +67,7 @@ objects:
     metadata:
       name: collab-by-code-api
     stringData:
-      smtp.host: "${SMTP_HOST}"
-      smtp.port: "${SMTP_PORT}"
-      smtp.auth.user: "${SMTP_AUTH_USER}"
-      smtp.auth.password: "${SMTP_AUTH_PASSWORD}"
+      sendgrid.api.key: "${SENDGRID_API_KEY}"
   - apiVersion: v1
     kind: Service
     metadata:
@@ -229,26 +210,11 @@ objects:
                     configMapKeyRef:
                       name: collab-by-code-api
                       key: keycloak.clientId
-                - name: SMTP_HOST
+                - name: SENDGRID_API_KEY
                   valueFrom:
                     secretKeyRef:
                       name: collab-by-code-api
-                      key: smtp.host
-                - name: SMTP_PORT
-                  valueFrom:
-                    secretKeyRef:
-                      name: collab-by-code-api
-                      key: smtp.port
-                - name: SMTP_AUTH_USER
-                  valueFrom:
-                    secretKeyRef:
-                      name: collab-by-code-api
-                      key: smtp.auth.user
-                - name: SMTP_AUTH_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                      name: collab-by-code-api
-                      key: smtp.auth.password
+                      key: sendgrid.api.key
                 - name: MAIL_FROM
                   valueFrom:
                     configMapKeyRef:

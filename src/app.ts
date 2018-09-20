@@ -12,8 +12,6 @@ import * as http from "http";
 import bodyParser from "body-parser";
 import multer from "multer";
 import { loadData } from "./utils/collectionUtils";
-import nodemailer from "nodemailer";
-
 import loki from "lokijs";
 import lfsa from "lokijs/src/loki-fs-structured-adapter";
 
@@ -118,24 +116,13 @@ import "./api/frames";
 //Collaborator routes
 import "./api/collaborators";
 
+//Email routes
+import "./api/mail.ts";
+
 export const io = require("socket.io")(webServer);
 
+//TODO move it to mail.ts
 io.on("connection", (socket: any) => {});
-
-//Mail Config  - TODO env variables
-const mailConfig = {
-  host: `${process.env.SMTP_HOST}`,
-  port: parseInt(process.env.SMTP_PORT),
-  pool: true
-  // auth: {
-  //   user: `${process.env.SMTP_AUTH_USER}`,
-  //   password: `${process.env.SMTP_AUTH_PASSWORD}`
-  // }
-};
-
-//console.log(mailConfig);
-
-export const transporter = nodemailer.createTransport(mailConfig);
 
 //Start the server
 webServer.listen(app.get("port"), () => {
