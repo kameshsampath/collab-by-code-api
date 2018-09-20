@@ -47,7 +47,7 @@ parameters:
   - name: MAIL_FROM
     description: The Email From address from which Collab by Code emails will be sent
     displayName: Email From
-    value: "Collab By Code<collabbycode@example.com>"
+    value: "Collab By Code<no-reply@collabbycode.com>"
     required: true
   - name: MAIL_SUBJECT
     description: The subject of the email to be sent
