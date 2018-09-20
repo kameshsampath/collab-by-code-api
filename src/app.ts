@@ -2,8 +2,9 @@ import env from "dotenv";
 
 if (process.env.NODE_ENV === "development") {
   env.config();
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 }
+
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 import * as cors from "cors";
 import express from "express";
@@ -39,8 +40,15 @@ app.use(
 
 //console.log("Using Keycloak :", process.env.KEYCLOAK_URL);
 
-export const kcConfig = require("./keycloak.json");
-//console.log("Using Keycloak Config ", kcConfig);
+//export const kcConfig = require("./keycloak.json");
+export const kcConfig = {
+  realm: process.env.KEYCLOAK_REALM,
+  "bearer-only": true,
+  "auth-server-url": process.env.KEYCLOAK_URL,
+  resource: process.env.KEYCLOAK_CLIENT_ID
+};
+
+console.log("Using Keycloak Config ", kcConfig);
 
 export const keycloak = new Keycloak({ store: memoryStore }, kcConfig);
 

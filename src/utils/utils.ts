@@ -1,6 +1,7 @@
 import sgMail from "@sendgrid/mail";
 
-export const mailSubject = "Collab by Code - Welcome to OpenSource";
+export const mailSubject =
+  process.env.MAIL_SUBJECT || "Your Collaborate by Code Photo";
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 export async function sendMail(message) {

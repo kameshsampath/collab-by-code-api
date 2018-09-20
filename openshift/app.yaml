@@ -49,6 +49,11 @@ parameters:
     displayName: Email From
     value: "Collab By Code<collabbycode@example.com>"
     required: true
+  - name: MAIL_SUBJECT
+    description: The subject of the email to be sent
+    displayName: Email Subject
+    value: "Your Collaborate by Code Photo"
+    required: false
 objects:
   - kind: ConfigMap
     apiVersion: v1
@@ -62,6 +67,7 @@ objects:
       keycloak.realm: ${KEYCLOAK_REALM}
       keycloak.clientId: ${KEYCLOAK_CLIENT_ID}
       email.from: ${MAIL_FROM}
+      email.subject: ${MAIL_SUBJECT}
   - kind: Secret
     apiVersion: v1
     metadata:
@@ -220,6 +226,11 @@ objects:
                     configMapKeyRef:
                       name: collab-by-code-api
                       key: email.from
+                - name: MAIL_SUBJECT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: collab-by-code-api
+                      key: email.subject
               image: "collab-by-code-api:latest"
               name: collab-by-code-api
               ports:
