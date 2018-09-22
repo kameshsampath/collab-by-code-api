@@ -127,6 +127,8 @@ objects:
       strategy:
         sourceStrategy:
           env:
+            - name: YARN_ENABLED
+              value: true
             - name: NODE_ENV
               value: development
           from:
