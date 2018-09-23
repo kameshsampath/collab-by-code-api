@@ -123,6 +123,9 @@ import "./api/collaborators";
 //Email routes
 import "./api/mail.ts";
 
+//Gist routes
+import "./api/gist.ts";
+
 export const io = require("socket.io")(webServer);
 
 //TODO move it to mail.ts

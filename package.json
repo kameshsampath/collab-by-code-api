@@ -37,6 +37,7 @@
     "@types/nodemailer": "^4.6.5",
     "@types/request": "^2.47.1",
     "@types/socket.io": "^1.4.38",
+    "axios": "^0.18.0",
     "body-parser": "^1.18.3",
     "chokidar": "^2.0.4",
     "cors": "^2.8.4",
